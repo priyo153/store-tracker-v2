@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import { createStore } from "../actions";
 import { connect } from "react-redux";
+import { CLOSE_BUTTON_URL } from "../constants";
 
 class StoreForm extends Component {
   state = {
@@ -31,7 +32,6 @@ class StoreForm extends Component {
 
     //check for empty fields before submit
     for (let item in this.state) {
-      console.log(this.state);
       if (this.state[item].length === 0) {
         errors[item] = "This field can not be empty";
 
@@ -51,6 +51,20 @@ class StoreForm extends Component {
     }
     return valid;
   };
+  //used to chek if the user provided a valid url or not
+  validURL = (str) => {
+    var pattern = new RegExp(
+      "^(https?:\\/\\/)?" + // protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+        "(\\#[-a-z\\d_]*)?$",
+      "i"
+    ); // fragment locator
+    return !!pattern.test(str);
+  };
+
   onChange(e) {
     this.setState({ [e.target.name]: e.target.value });
 
@@ -59,19 +73,18 @@ class StoreForm extends Component {
 
     //validation on client side
     switch (name) {
+      case "file":
+        errors.file = this.validURL(value) ? "" : "must be a valid URL";
+        break;
       case "storename":
         errors.storename =
           value.length > 3 ? "" : "must be atleast 4 characters long";
         break;
       case "lat":
-        errors.lat =
-          isNaN(value) || value < 0 ? "Latitude must be a positive number" : "";
+        errors.lat = isNaN(value) ? "Latitude must be a number" : "";
         break;
       case "lng":
-        errors.lng =
-          isNaN(value) || value < 0
-            ? "Longitude must be a positive number"
-            : "";
+        errors.lng = isNaN(value) ? "Longitude must be a number" : "";
         break;
       default:
         break;
@@ -84,11 +97,10 @@ class StoreForm extends Component {
 
     //if form has error messages do nothing
     if (this.validateForm(this.state.errors)) {
-      console.log("submit");
-
       //passed the object into an IIFE to destructure the neeeded values through a call back function and return them back
       this.props.createStore(
         (({ file, storename, lat, lng }) => ({
+          id: "ST-" + this.props.stores.length,
           file,
           storename,
           lat,
@@ -109,56 +121,44 @@ class StoreForm extends Component {
           lng: "",
         },
       });
+
+      alert("Store created successfully!");
     }
   }
 
   render() {
     return (
-      <div className="user-input-form" id="fadein">
+      <div className="user-input-form " id="fadein">
         <Link to="/">
-          <img
-            alt="close"
-            src="https://img.icons8.com/fluent/48/000000/close-window.png"
-            className="mb-5"
-          />
+          <img alt="close" src={CLOSE_BUTTON_URL} className="mb-2" />
         </Link>
 
+        {/**----------------thumbnail image--------------------------------------- */}
         <form onSubmit={this.onSubmit}>
-          {/*----------------------file field-------------------------------------- */}
-          <div className="custom-file mb-4">
-            <input
-              type="file"
-              className="custom-file-input"
-              id="customFile"
-              name="file"
-              onChange={(e) => {
-                console.log(e.target.files.item(0));
-                let file = e.target.files ? e.target.files.item(0) : "";
-                if (file.name.match(/\.(jpg|jpeg|png|gif)$/)) {
-                  this.setState({
-                    filename: e.target.value.split("\\").pop(),
-                    file,
-                    errors: { ...this.state.errors, file: "" },
-                  });
-                } else {
-                  this.setState({
-                    file: "",
-                    filename: "choose file",
-                    errors: { ...this.state.errors, file: "Bad File selected" },
-                  });
-                }
-              }}
+          <div className="d-flex justify-content-center">
+            <div
+              className="thumbnail mb-2"
+              style={{ backgroundImage: `url(${this.state.file})` }}
             />
-            <label className="custom-file-label" htmlFor="customFile">
-              {this.state.filename}
-            </label>
+          </div>
+          {/*----------------------file field-------------------------------------- */}
+          <div className="form-group ">
+            <label htmlFor="file">Store Image URL</label>
+            <input
+              type="text"
+              className="form-control"
+              id="file"
+              name="file"
+              aria-describedby="file"
+              placeholder="Store File URL "
+              onChange={this.onChange}
+              value={this.state.file}
+            />
             {this.state.errors.file && (
               <span className="text-danger ">{this.state.errors.file}</span>
             )}
           </div>
-
-          {/*---------------------------store name field---------------------------------*/}
-
+          {/**---------------store name field----------------------------- */}
           <div className="form-group ">
             <label htmlFor="storename">Store Name</label>
             <input
@@ -177,9 +177,7 @@ class StoreForm extends Component {
               </span>
             )}
           </div>
-
-          {/*----------------------latitude field-----------------------------------*/}
-
+          {/*------Latitude field-------------------------- */}
           <div className="form-group">
             <label htmlFor="latitude">Latitude</label>
             <input
@@ -221,7 +219,9 @@ class StoreForm extends Component {
     );
   }
 }
-let mapStateToProps = () => {
-  return {};
+let mapStateToProps = (state) => {
+  return {
+    stores: state.stores,
+  };
 };
 export default connect(mapStateToProps, { createStore })(StoreForm);

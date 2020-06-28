@@ -6,8 +6,12 @@ class StoreList extends Component {
   render() {
     //create a list of stores in jsx format
     let storeNames = this.props.stores.map((item) => {
-      let text = `${item.id} ---  ${item.name} `;
-      return <li className="list-group-item">{text}</li>;
+      let text = `${item.id} ---  ${item.storename} `;
+      return (
+        <li key={item.id} className="list-group-item">
+          {text}
+        </li>
+      );
     });
 
     return (

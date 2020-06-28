@@ -6,18 +6,22 @@ class OrderList extends Component {
     //create list of order in JSX format
     let OrderItems = this.props.orders.map((item) => {
       let name;
-      //find names of an order's branch
+      //find names of an order's store using store id
       for (let store of this.props.stores) {
         if (store.id === item.storeid) {
-          name = store.name;
+          name = store.storename;
           break;
         }
       }
       //generate the string to be displayed
-      let text = `${item.id} from ${name ? name : item.storeid} for Rs ${
-        item.amt
+      let text = `${item.orderid} from ${name ? name : item.storeid} for Rs ${
+        item.amount
       }`;
-      return <li className="list-group-item">{text}</li>;
+      return (
+        <li key={item.id} className="list-group-item">
+          {text}
+        </li>
+      );
     });
     return (
       <div className="display-area d-flex justify-content-center">

@@ -6,14 +6,24 @@ import Menu from "./Menu";
 import MapArea from "./MapArea";
 import StoreList from "./StoreList";
 import OrderList from "./OrderList";
+import { getStores, getOrders } from "../actions";
+import { connect } from "react-redux";
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    //load all stores and orders in state on opening website
+    props.getStores();
+    props.getOrders();
+  }
+
   render() {
     return (
       <Router history={history}>
         <Header />
         <div className="contents">
           <Switch>
+            {/**---------route for homepage--------------- */}
             <Route
               path="/"
               exact
@@ -24,7 +34,7 @@ class App extends Component {
                 </React.Fragment>
               )}
             />
-
+            {/**---------route for order form--------------- */}
             <Route
               path="/orderForm"
               exact
@@ -35,6 +45,7 @@ class App extends Component {
                 </React.Fragment>
               )}
             />
+            {/**---------route for store form--------------- */}
             <Route
               path="/storeForm"
               exact
@@ -45,6 +56,8 @@ class App extends Component {
                 </React.Fragment>
               )}
             />
+
+            {/**---------route for store List--------------- */}
             <Route
               path="/storeList"
               exact
@@ -56,6 +69,7 @@ class App extends Component {
               )}
             />
 
+            {/**---------route for order List--------------- */}
             <Route
               path="/OrderList"
               exact
@@ -72,4 +86,5 @@ class App extends Component {
     );
   }
 }
-export default App;
+let mapStateToProps = (state) => ({});
+export default connect(mapStateToProps, { getOrders, getStores })(App);

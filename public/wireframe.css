@@ -22,15 +22,19 @@ body {
 .display-area {
   background-color: #d9d7df;
   width: 80vw;
+  margin: 0;
+  z-index: 1;
 }
 
 .user-input-form {
   margin-left: auto;
   background-color: #71a3ff;
   padding: 0 1rem;
-  height: 90vh;
+  min-height: 90vh;
   width: 20vw;
   border-radius: 5%;
+  position: relative;
+  z-index: 100;
 }
 
 .item-list {
@@ -102,4 +106,17 @@ body {
   to {
     opacity: 1;
   }
+}
+
+.googlemap {
+  max-width: 80vw;
+  max-height: 90vh;
+  z-index: 10;
+}
+
+.thumbnail {
+  width: 15vw;
+  height: 20vh;
+  background-size: cover;
+  background-color: gray;
 }
